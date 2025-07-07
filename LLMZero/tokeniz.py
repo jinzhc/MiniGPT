@@ -1,9 +1,7 @@
 import tiktoken
 
-
 class Tokenizer(object):
     def __init__(self, name="cl100k_base"):
-        print(f"Tokenizer.__init__")
         self.name = name
         assert name in [
             "cl100k_base",
@@ -14,6 +12,9 @@ class Tokenizer(object):
             "r50k_edit",
         ], f"Unsupported tokenizer: {name}"
         self.tokenizer = tiktoken.get_encoding(name)
+
+    def vocab_size(self):
+        return self.tokenizer.n_vocab
 
     def encode(self, text):
         tokens = self.tokenizer.encode(text)
