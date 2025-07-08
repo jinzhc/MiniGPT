@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 
 
 def get_dataset(tokenizer, config):
-    # 加载数据集并转为tokens。为简单起见，我们读取一个文本文件作为数据集。
+    # Read text as a dataset from a file
     with open("data/dataset.txt", "r", encoding="utf-8") as f:
         text = f.read()
         dataset = TokenDataset(
@@ -20,7 +20,7 @@ def get_dataset(tokenizer, config):
 
 
 if __name__ == "__main__":
-    # 初始化配置
+    # Initialize tokenizer and configuration
     tokenizer = Tokenizer("cl100k_base")
     config = Config(
         vocab_size=tokenizer.vocab_size(),
@@ -28,12 +28,15 @@ if __name__ == "__main__":
     )
     print(f"{config}")
 
+    # Create dataset and put it in a DataLoader
     dataset = get_dataset(tokenizer, config)
     dataset = DataLoader(dataset, batch_size=config.batch_size, shuffle=True)
+    
+    # Initialize model and optimizer
     model = MiniGPT(config).to(config.device)
     optimizer = torch.optim.AdamW(params=model.parameters(), lr=0.001)
-    # print(f"Model: {model}")
 
+    # Training loop
     for step, batch in enumerate(dataset, start=1):
         x, y = batch
         logits, loss = model(x, y)

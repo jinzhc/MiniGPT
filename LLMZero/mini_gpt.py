@@ -67,11 +67,13 @@ class TransformerDecoder(torch.nn.Module):
         self.ln2 = torch.nn.LayerNorm(config.d_model)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # the compute order in decoder: mha, residual add, layer norm1, feed-forward, residual add, layer norm2
-        x = x + self.attn(x)  # Multi-head attention
-        x = self.ln1(x)  # Residual connection and layer normalization
-        x = x + self.ffn(x)  # Feed-forward network
-        x = self.ln2(x)  # Residual connection and layer normalization
+        # the compute order in decoder: 
+        #   mha, residual add, layer norm1,
+        #   feed-forward, residual add, layer norm2
+        x = x + self.attn(x)
+        x = self.ln1(x)
+        x = x + self.ffn(x)
+        x = self.ln2(x)
         return x
 
 

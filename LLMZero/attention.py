@@ -47,7 +47,7 @@ class MHSA(nn.Module):
         self.projection = nn.Linear(config.d_model, config.d_model)
 
     def forward(self, x):
-        # x: (batch_size, context_len, dim)
+        # x: (batch_size, context_len, d_model)
         out = torch.cat([head(x) for head in self.heads], dim=-1)
         out = self.projection(out)
         return out
