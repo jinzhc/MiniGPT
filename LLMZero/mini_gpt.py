@@ -1,5 +1,6 @@
 import torch
 import math
+from torch.nn import functional as F
 
 try:
     from .config import Config
@@ -99,13 +100,19 @@ class MiniGPT(torch.nn.Module):
             positional_encoding(config.d_model, config.context_len),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x, y=None):
         # x.shape: (batch_size, context_len)
         x = self.embedding(x)  # Convert token to embeddings
         x += self.positional_embedding  # add positional embedding
         x = self.blocks(x)  # Pass through transformer blocks
         logits = self.final_projection_layer(x)  # Final linear layer
-        return logits
+        loss = None
+        if y is not None:
+            logits_reshaped = logits.view(-1, logits.size(-1))
+            y_reshaped = y.view(-1)
+            loss = F.cross_entropy(input=logits_reshaped, target=y_reshaped)
+
+        return logits, loss
 
 
 if __name__ == "__main__":
@@ -118,6 +125,6 @@ if __name__ == "__main__":
     idx = torch.randint(
         low=0, high=config.vocab_size, size=(config.batch_size, config.context_len)
     ).to(config.device)
-    out = model(idx)
+    out, loss = model(idx)
     print(config)
     print(f"Input and Output shape: {idx.shape}, {out.shape}")

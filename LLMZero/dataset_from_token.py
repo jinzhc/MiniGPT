@@ -4,7 +4,7 @@ from torch.utils.data import Dataset
 
 class TokenDataset(Dataset):
     def __init__(self, tokens, context_len, device=None):
-        self.tokens = torch.tensor(tokens, dtype=torch.int32, device=device)
+        self.tokens = torch.tensor(tokens, dtype=torch.int64, device=device)
         self.context_len = context_len
 
     def __len__(self):
