@@ -1,7 +1,13 @@
 import torch
 import math
-from .attention import MHSA
-from .config import Config
+
+try:
+    from .config import Config
+    from .attention import MHSA
+except ImportError:
+    # If running as a script, use absolute import
+    from config import Config
+    from attention import MHSA
 
 
 def positional_encoding(d_model, length):
@@ -85,19 +91,30 @@ class MiniGPT(torch.nn.Module):
         )
 
         # construct the final linear layer, prepare to predict the next token
-        self.final_layer = torch.nn.Linear(config.d_model, config.vocab_size)
+        self.final_projection_layer = torch.nn.Linear(config.d_model, config.vocab_size)
         self.positional_embedding = positional_encoding(
             config.d_model, config.context_len
         ).to(device=config.device)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # x.shape: (batch_size, context_length)
-        print(f"MiniGPT.forward: x.shape = {x.shape}")
-
+        # x.shape: (batch_size, context_len)
         x = self.embedding(x)  # Convert token to embeddings
         x += self.positional_embedding  # add positional embedding
         x = self.blocks(x)  # Pass through transformer blocks
-        logits = self.final_layer(x)  # Final linear layer
-
-        print(f"MiniGPT.forward: logits.shape = {logits.shape}")
+        logits = self.final_projection_layer(x)  # Final linear layer
         return logits
+
+
+if __name__ == "__main__":
+    # Example usage
+    config = Config()
+    model = MiniGPT(config).to(config.device)
+    print(model)
+
+    # Create a dummy input tensor
+    idx = torch.randint(
+        low=0, high=config.vocab_size, size=(config.batch_size, config.context_len)
+    ).to(config.device)
+    out = model(idx)
+    print(config)
+    print(f"Input and Output shape: {idx.shape}, {out.shape}")
