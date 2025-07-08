@@ -9,11 +9,6 @@ if __name__ == "__main__":
     # 初始化配置
     config = Config(
         vocab_size=tokenizer.vocab_size(),
-        batch_size=5,
-        context_len=16,
-        num_heads=4,
-        num_decoders=3,
-        d_model=128,
         device="cuda" if torch.cuda.is_available() else "cpu",
     )
     print(f"{config}")
