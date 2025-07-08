@@ -2,6 +2,7 @@ import torch
 from LLMZero import MiniGPT, Config
 from LLMZero import Tokenizer, TokenDataset
 from torch.utils.data import DataLoader
+from datetime import datetime
 
 
 def get_dataset(tokenizer, config):
@@ -31,12 +32,13 @@ if __name__ == "__main__":
     # Create dataset and put it in a DataLoader
     dataset = get_dataset(tokenizer, config)
     dataset = DataLoader(dataset, batch_size=config.batch_size, shuffle=True)
-    
+
     # Initialize model and optimizer
     model = MiniGPT(config).to(config.device)
     optimizer = torch.optim.AdamW(params=model.parameters(), lr=0.001)
 
     # Training loop
+    start_time = datetime.now()
     for step, batch in enumerate(dataset, start=1):
         x, y = batch
         logits, loss = model(x, y)
@@ -44,5 +46,12 @@ if __name__ == "__main__":
         loss.backward()
         optimizer.step()
 
-        if step % 10 == 0:
-            print(f"Step {step}, Training Loss: {loss.item()}")
+        if step % 50 == 0:
+            print(f"Step {step:-8d}, Training Loss: {loss.item():.8f}")
+    interval = datetime.now() - start_time
+    print(f"Training completed {step} steps in {interval.total_seconds() / (60*60.0):.2f} hours.")
+
+    # Save the checkpoint model
+    save_model = "model-ckpt.pth"
+    torch.save(model.state_dict(), save_model)
+    print(f"Model saved to {save_model}.")
