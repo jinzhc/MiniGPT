@@ -55,7 +55,9 @@ class MHSA(nn.Module):
 
 if __name__ == "__main__":
     # Example usage
-    config = Config()
+    config = Config(
+        num_heads=2,
+    )
 
     # for attention
     x = torch.randn((config.batch_size, config.context_len, config.d_model))
