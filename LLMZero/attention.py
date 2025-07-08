@@ -1,6 +1,11 @@
 import torch
 from torch import nn
-from .config import Config
+
+try:
+    from .config import Config
+except ImportError:
+    # If running as a script, use absolute import
+    from config import Config
 
 class SelfAttention(nn.Module):
     """
@@ -52,9 +57,16 @@ if __name__ == "__main__":
 
     x = torch.randn(batch_size, context_length, dim)
 
+    # Create config object
+    config = Config(
+        d_model=dim,
+        num_heads=num_heads,
+        head_dim=head_size
+    )
+
     # for attention
-    attention1 = SelfAttention(dim, head_size)
-    attention2 = SelfAttention(dim, head_size)
+    attention1 = SelfAttention(config)
+    attention2 = SelfAttention(config)
     out1 = attention1(x)
     out2 = attention2(x)
     print(f"Input shape: {x.shape}, Output shape: {out1.shape}")
@@ -62,7 +74,7 @@ if __name__ == "__main__":
     print(f"Concatenated output shape: {out.shape}")
 
     # for multi-head attention
-    multihead = MHSA(dim, num_heads)
+    multihead = MHSA(config)
     out_multihead = multihead(x)
     print(f"Multi-head output shape: {out_multihead.shape}")
     assert out.shape == out_multihead.shape, "Multi-head output shape mismatch"
