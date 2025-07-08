@@ -5,12 +5,12 @@ from dataclasses import dataclass
 class Config:
     device: str = "cpu"  # Device to use for training, can be "cpu" or "cuda"
     vocab_size: int = 1000  # Vocabulary size, adjusted based on tokenizer
-    batch_size: int = 5  # Batch size for training
-    context_len: int = 16  # Context length for input tokens
-    d_model: int = 64  # Embedding dimension
-    num_heads: int = 2  # Number of attention heads
-    head_dim: int = 32  # Dimension of each attention head
-    num_decoders: int = 3  # Number of transformer decoder blcoks
+    batch_size: int = 64  # Batch size for training
+    context_len: int = 512  # Context length for input tokens
+    d_model: int = 128  # Embedding dimension
+    num_heads: int = 8  # Number of attention heads
+    head_dim: int = 0  # Dimension of each attention head
+    num_decoders: int = 2  # Number of transformer decoder blcoks
     dropout: float = 0.1  # Dropout rate
 
     def __post_init__(self):
