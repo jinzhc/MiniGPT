@@ -7,6 +7,7 @@ except ImportError:
     # If running as a script, use absolute import
     from config import Config
 
+
 class SelfAttention(nn.Module):
     """
     Self attention for multiple heads. See Figure 2 in https://arxiv.org/abs/1706.03762.
@@ -18,12 +19,17 @@ class SelfAttention(nn.Module):
         self.Wq = nn.Linear(config.d_model, config.head_dim)
         self.Wk = nn.Linear(config.d_model, config.head_dim)
         self.Wv = nn.Linear(config.d_model, config.head_dim)
+        self.register_buffer(
+            "umask",
+            torch.triu(torch.ones(config.context_len, config.context_len), diagonal=1).bool(),
+        )
 
     def forward(self, x):
         q = self.Wq(x)
         k = self.Wk(x)
         v = self.Wv(x)
         scores = (q @ k.mT) * (1.0 / (self.head_dim**0.5))
+        scores = scores.masked_fill(self.umask, float("-inf"))
         scores = scores.softmax(dim=-1) @ v
         return scores
 
@@ -49,22 +55,10 @@ class MHSA(nn.Module):
 
 if __name__ == "__main__":
     # Example usage
-    batch_size = 3
-    context_length = 5
-    dim = 2**9
-    num_heads = 2
-    head_size = dim // num_heads
-
-    x = torch.randn(batch_size, context_length, dim)
-
-    # Create config object
-    config = Config(
-        d_model=dim,
-        num_heads=num_heads,
-        head_dim=head_size
-    )
+    config = Config()
 
     # for attention
+    x = torch.randn((config.batch_size, config.context_len, config.d_model))
     attention1 = SelfAttention(config)
     attention2 = SelfAttention(config)
     out1 = attention1(x)
