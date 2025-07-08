@@ -1,26 +1,24 @@
 import torch
 from torch import nn
-
+from .config import Config
 
 class SelfAttention(nn.Module):
     """
     Self attention for multiple heads. See Figure 2 in https://arxiv.org/abs/1706.03762.
     """
 
-    def __init__(self, dim, head_size):
+    def __init__(self, config: Config):
         super().__init__()
-        self.dim = dim
-        self.head_size = head_size
-
-        self.Wq = nn.Linear(dim, head_size)
-        self.Wk = nn.Linear(dim, head_size)
-        self.Wv = nn.Linear(dim, head_size)
+        self.head_dim = config.head_dim
+        self.Wq = nn.Linear(config.d_model, config.head_dim)
+        self.Wk = nn.Linear(config.d_model, config.head_dim)
+        self.Wv = nn.Linear(config.d_model, config.head_dim)
 
     def forward(self, x):
         q = self.Wq(x)
         k = self.Wk(x)
         v = self.Wv(x)
-        scores = (q @ k.mT) * (1.0 / (self.head_size**0.5))
+        scores = (q @ k.mT) * (1.0 / (self.head_dim**0.5))
         scores = scores.softmax(dim=-1) @ v
         return scores
 
@@ -30,21 +28,15 @@ class MHSA(nn.Module):
     Multi Head Self Attention. See 3.2.2 in https://arxiv.org/abs/1706.03762.
     """
 
-    def __init__(self, dim, num_heads):
+    def __init__(self, config: Config):
         super().__init__()
-        assert (
-            dim % num_heads == 0
-        ), f"dim {dim} must be divisible by num_heads {num_heads}"
-        self.head_size = dim // num_heads
-        self.dim = dim
-        self.num_heads = num_heads
         self.heads = nn.ModuleList(
-            [SelfAttention(dim, self.head_size) for _ in range(num_heads)]
+            [SelfAttention(config) for _ in range(config.num_heads)]
         )
-        self.projection = nn.Linear(dim, dim)
+        self.projection = nn.Linear(config.d_model, config.d_model)
 
     def forward(self, x):
-        # x: (batch_size, cotext_length, dim)
+        # x: (batch_size, context_len, dim)
         out = torch.cat([head(x) for head in self.heads], dim=-1)
         out = self.projection(out)
         return out

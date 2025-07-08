@@ -54,7 +54,7 @@ class TransformerDecoder(torch.nn.Module):
 
     def __init__(self, config: Config):
         super().__init__()
-        self.attn = MHSA(config.d_model, config.num_heads)
+        self.attn = MHSA(config)
         self.ln1 = torch.nn.LayerNorm(config.d_model)
         self.ffn = FFN(config)
         self.ln2 = torch.nn.LayerNorm(config.d_model)
