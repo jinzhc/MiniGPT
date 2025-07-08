@@ -14,17 +14,17 @@ def positional_encoding(d_model, length):
     """
     Sinusoidal positional encoding. See section 3.5 in "Attention Is All You Need".
     """
-    assert d_model % 2 == 0, f"d_model {d_model} must be even for positional encoding"
     pe = torch.zeros(length, d_model)
-    position = torch.arange(0, length).unsqueeze(1)
+    position = torch.arange(0, length, dtype=torch.float).unsqueeze(1)
     div_term = torch.exp(
         (
             torch.arange(0, d_model, 2, dtype=torch.float)
             * -(math.log(10000.0) / d_model)
         )
     )
-    pe[:, 0::2] = torch.sin(position.float() * div_term)
-    pe[:, 1::2] = torch.cos(position.float() * div_term)
+    pe[:, 0::2] = torch.sin(position * div_term)
+    pe[:, 1::2] = torch.cos(position * div_term)
+    pe = pe.unsqueeze(0)
     return pe
 
 
@@ -92,9 +92,12 @@ class MiniGPT(torch.nn.Module):
 
         # construct the final linear layer, prepare to predict the next token
         self.final_projection_layer = torch.nn.Linear(config.d_model, config.vocab_size)
-        self.positional_embedding = positional_encoding(
-            config.d_model, config.context_len
-        ).to(device=config.device)
+
+        # positional encoding
+        self.register_buffer(
+            "positional_embedding",
+            positional_encoding(config.d_model, config.context_len),
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x.shape: (batch_size, context_len)
