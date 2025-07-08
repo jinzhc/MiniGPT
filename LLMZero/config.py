@@ -5,8 +5,8 @@ from dataclasses import dataclass
 class Config:
     device: str = "cpu"  # Device to use for training, can be "cpu" or "cuda"
     vocab_size: int = 1000  # Vocabulary size, adjusted based on tokenizer
-    batch_size: int = 64  # Batch size for training
-    context_len: int = 512  # Context length for input tokens
+    batch_size: int = 5  # Batch size for training
+    context_len: int = 256  # Context length for input tokens
     d_model: int = 128  # Embedding dimension
     num_heads: int = 8  # Number of attention heads
     head_dim: int = 0  # Dimension of each attention head
@@ -22,3 +22,4 @@ class Config:
         assert self.batch_size > 0, "batch_size must be greater than 0"
         assert self.vocab_size > 0, "vocab_size must be greater than 0"
         assert self.head_dim > 0, "head_dim must be greater than 0"
+        assert self.head_dim % 2 == 0, "head_dim must be even"
