@@ -22,8 +22,11 @@ def get_dataset(tokenizer, config):
 
 if __name__ == "__main__":
     # Initialize tokenizer and configuration
-    tokenizer = Tokenizer("cl100k_base")
+    tokenizer_name = "cl100k_base"  # from tiktoken
+    tokenizer = Tokenizer(tokenizer_name)
     config = Config(
+        save_path="save/mini_gpt001.pth",
+        tokenizer_name=tokenizer_name,
         vocab_size=tokenizer.vocab_size(),
         device="cuda" if torch.cuda.is_available() else "cpu",
     )
