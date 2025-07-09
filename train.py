@@ -47,11 +47,13 @@ if __name__ == "__main__":
         optimizer.step()
 
         if step % 50 == 0:
-            print(f"Step {step:-8d}, Training Loss: {loss.item():.8f}")
-    interval = datetime.now() - start_time
-    print(f"Training completed {step} steps in {interval.total_seconds() / (60*60.0):.2f} hours.")
+            print(f"Step {step:08d}, Training Loss: {loss.item():.8f}")
 
-    # Save the checkpoint model
-    save_model = "model-ckpt.pth"
-    torch.save(model.state_dict(), save_model)
-    print(f"Model saved to {save_model}.")
+    interval = datetime.now() - start_time
+    print(
+        f"Training completed {step} steps in {interval.total_seconds() / (60*60.0):.2f} hours."
+    )
+
+    # Save the model
+    saved_config_file = model.to_config(config)
+    print(f"Model saved to {config.save_path} and {saved_config_file}")
