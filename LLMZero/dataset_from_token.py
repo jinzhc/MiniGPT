@@ -20,12 +20,13 @@ if __name__ == "__main__":
     from tokeniz import Tokenizer
     from config import Config
     from torch.utils.data import DataLoader
+    import gzip
 
     tokenizer = Tokenizer("cl100k_base")
     config = Config()
     print(f"Config: {config}")
 
-    with open("data/dataset.txt", "r", encoding="utf-8") as f:
+    with gzip.open("data/dataset.txt.gz", "rt", encoding="utf-8") as f:
         text = f.read()
         print(f"Read text from dataset, length: {len(text)}")
 

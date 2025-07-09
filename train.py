@@ -3,11 +3,11 @@ from LLMZero import MiniGPT, Config
 from LLMZero import Tokenizer, TokenDataset
 from torch.utils.data import DataLoader
 from datetime import datetime
-
+import gzip
 
 def get_dataset(tokenizer, config):
     # Read text as a dataset from a file
-    with open("data/dataset.txt", "r", encoding="utf-8") as f:
+    with gzip.open("data/dataset.txt.gz", "rt", encoding="utf-8") as f:
         text = f.read()
         dataset = TokenDataset(
             tokens=tokenizer.encode(text),
