@@ -53,9 +53,7 @@ if __name__ == "__main__":
             print(f"Step {step:08d}, Training Loss: {loss.item():.8f}")
 
     interval = datetime.now() - start_time
-    print(
-        f"Training completed {step} steps in {interval.total_seconds() / (60*60.0):.2f} hours."
-    )
+    print(f"Training completed in {interval.total_seconds() / (60*60.0):.2f} hours.")
 
     # Save the model
     saved_config_file = model.to_config(config)
