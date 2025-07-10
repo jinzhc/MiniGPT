@@ -17,12 +17,17 @@ class Tokenizer(object):
         return self.tokenizer.n_vocab
 
     def encode(self, text):
-        tokens = self.tokenizer.encode(text)
+        tokens = self.tokenizer.encode(text, allowed_special="all")
         return tokens
 
     def decode(self, token_ids):
         text = self.tokenizer.decode(token_ids)
         return text
+    
+    @property
+    def eot_token(self):
+        """End of text token."""
+        return self.tokenizer.eot_token
 
     def __call__(self, text):
         return self.encode(text)

@@ -32,6 +32,8 @@ def generate_text(
             logits, _ = model(input_tensor)
             next_token_logits = logits[:, -1, :]  # Get the logits of the last token
             next_token_id = torch.argmax(next_token_logits, dim=-1).item()
+            if next_token_id == tokenizer.eot_token:
+                break
             generated_tokens.append(next_token_id)
 
     print(f"Generated {len(generated_tokens)} tokens: {generated_tokens}")
@@ -42,12 +44,12 @@ if __name__ == "__main__":
     # prepare the training configuration
     config, config_file = Config.from_latest_json("save/")
     print(f"Loaded config from {config_file}:")
-    print(f"{config}")
+    print(f"Loaded {config}")
     model = MiniGPT(config).to(config.device)
-    # print(model)
+    model.eval()
 
     # Generate with the prompt
-    prompt = "Hello, how are you?"
-    generated_text = generate_text(model, config, prompt=prompt, max_length=10)
-    print(f"Generated text: {generated_text}")
+    prompt = "Once upon a time "
+    generated_text = generate_text(model, config, prompt=prompt, max_length=100)
     print(f"Generated text length: {len(generated_text)}")
+    print(f"Generated text: {generated_text}")
