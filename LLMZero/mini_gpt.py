@@ -85,6 +85,9 @@ class MiniGPT(torch.nn.Module):
     def __init__(self, config: Config):
         super().__init__()
 
+        # Save the configuration of model
+        self.config = config
+
         # construct the embedding layer
         self.embedding = torch.nn.Embedding(config.vocab_size, config.d_model)
 
@@ -126,12 +129,12 @@ class MiniGPT(torch.nn.Module):
         model.load_state_dict(torch.load(config.save_path, map_location=config.device))
         return model
 
-    def to_config(self, config: Config):
+    def save(self):
         """
         Save model and its config. Return the path to the saved config file.
         """
-        torch.save(self.state_dict(), config.save_path)
-        saved_config = config.to_json(config.save_path + ".json")
+        torch.save(self.state_dict(), self.config.save_path)
+        saved_config = self.config.to_json(self.config.save_path + ".json")
         return saved_config
 
 
@@ -152,7 +155,7 @@ if __name__ == "__main__":
     print(f"Input and Output shape: {idx.shape}, {out.shape}")
 
     # Save and load MiniGPT
-    saved_config = model.to_config(config)
+    saved_config = model.save()
     loaded_model = MiniGPT.from_config(config)
     y, _ = loaded_model(idx)
     print(f"model(in) == loaded_mode(in) is {torch.all(out == y)}")

@@ -5,9 +5,10 @@ from torch.utils.data import DataLoader
 from datetime import datetime
 import gzip
 
+
 def get_dataset(tokenizer, config):
     # Read text as a dataset from a file
-    with gzip.open("data/dataset.txt.gz", "rt", encoding="utf-8") as f:
+    with gzip.open("data/TinyStories-valid.txt.gz", "rt", encoding="utf-8") as f:
         text = f.read()
         dataset = TokenDataset(
             tokens=tokenizer.encode(text),
@@ -38,7 +39,7 @@ if __name__ == "__main__":
 
     # Initialize model and optimizer
     model = MiniGPT(config).to(config.device)
-    optimizer = torch.optim.AdamW(params=model.parameters(), lr=0.001)
+    optimizer = torch.optim.AdamW(params=model.parameters(), lr=config.learning_rate)
 
     # Training loop
     start_time = datetime.now()
@@ -52,9 +53,14 @@ if __name__ == "__main__":
         if step % 50 == 0:
             print(f"Step {step:08d}, Training Loss: {loss.item():.8f}")
 
+        if step >= config.max_steps:
+            break
+
     interval = datetime.now() - start_time
     print(f"Training completed in {interval.total_seconds() / (60*60.0):.2f} hours.")
 
     # Save the model
-    saved_config_file = model.to_config(config)
-    print(f"Model saved to {config.save_path} and {saved_config_file}")
+    saved_config_file = model.save()
+    print(
+        f"Model saved to '{model.config.save_path}' and its configuration saved to '{saved_config_file}'."
+    )

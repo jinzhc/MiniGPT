@@ -7,6 +7,8 @@ from pathlib import Path
 class Config:
     device: str = "cpu"  # Device to use for training, can be "cpu" or "cuda"
     vocab_size: int = 1000  # Vocabulary size, adjusted based on tokenizer
+    max_steps: int = 5000  # Maximum number of training steps
+    learning_rate: float = 0.001  # Learning rate for the optimizer
     batch_size: int = 5  # Batch size for training
     context_len: int = 256  # Context length for input tokens
     d_model: int = 128  # Embedding dimension
