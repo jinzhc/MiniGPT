@@ -104,8 +104,9 @@ class MiniGPT(torch.nn.Module):
 
     def forward(self, x, y=None):
         # x.shape: (batch_size, context_len)
+        batch_size, context_len = x.shape
         x = self.embedding(x)  # Convert token to embeddings
-        x += self.positional_embedding  # add positional embedding
+        x += self.positional_embedding[:, :context_len, :]  # add positional embedding
         x = self.blocks(x)  # Pass through transformer blocks
         logits = self.final_projection_layer(x)  # Final linear layer
         loss = None
@@ -143,16 +144,15 @@ if __name__ == "__main__":
     # print(model)
 
     # Create a dummy input tensor
-    idx = torch.randint(
-        low=0, high=config.vocab_size, size=(config.batch_size, config.context_len)
-    ).to(config.device)
+    n = int(torch.randint(0, config.context_len, (1,)).item())
+    idx = torch.randint(low=0, high=config.vocab_size, size=(config.batch_size, n))
+    idx.to(config.device)
     out, loss = model(idx)
     print(config)
     print(f"Input and Output shape: {idx.shape}, {out.shape}")
 
-    # save and load MiniGPT
+    # Save and load MiniGPT
     saved_config = model.to_config(config)
     loaded_model = MiniGPT.from_config(config)
-    # print(f"Loaded model: {loaded_model}")
     y, _ = loaded_model(idx)
     print(f"model(in) == loaded_mode(in) is {torch.all(out == y)}")

@@ -4,12 +4,10 @@ from LLMZero import Tokenizer
 
 
 def prepare_context(prompt_tokens, context_len):
-    padding_token_id = 27
-    if len(prompt_tokens) < context_len:
-        prompt_tokens = [padding_token_id] * config.context_len + prompt_tokens
-    # kee the last context_len tokens
-    prompt_tokens = prompt_tokens[-config.context_len :]
-
+    # keep the last context_len tokens
+    if len(prompt_tokens) > context_len:
+        prompt_tokens = prompt_tokens[-context_len:]
+    
     input_tensor = torch.tensor(prompt_tokens, dtype=torch.long).unsqueeze(0)
     return input_tensor
 
@@ -25,15 +23,15 @@ def generate_text(
 
     with torch.no_grad():
         for _ in range(max_length):
-            input_tensor = prepare_context(input_tokens+generated_tokens, config.context_len)
+            input_tensor = prepare_context(
+                input_tokens + generated_tokens, config.context_len
+            )
             input_tensor = input_tensor.to(config.device)
 
             # generate a token
             logits, _ = model(input_tensor)
-            next_token_logits = logits[:, -1, :]  # Get the logits for the last token
-            next_token_id = torch.argmax(
-                next_token_logits, dim=-1
-            ).item()
+            next_token_logits = logits[:, -1, :]  # Get the logits of the last token
+            next_token_id = torch.argmax(next_token_logits, dim=-1).item()
             generated_tokens.append(next_token_id)
 
     print(f"Generated {len(generated_tokens)} tokens: {generated_tokens}")

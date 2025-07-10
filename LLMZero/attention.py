@@ -19,17 +19,17 @@ class SelfAttention(nn.Module):
         self.Wq = nn.Linear(config.d_model, config.head_dim)
         self.Wk = nn.Linear(config.d_model, config.head_dim)
         self.Wv = nn.Linear(config.d_model, config.head_dim)
-        self.register_buffer(
-            "umask",
-            torch.triu(torch.ones(config.context_len, config.context_len), diagonal=1).bool(),
-        )
 
     def forward(self, x):
+        # x: (batch_size, context_len, d_model)
+        batch_size, context_len, _ = x.shape
         q = self.Wq(x)
         k = self.Wk(x)
         v = self.Wv(x)
         scores = (q @ k.mT) * (1.0 / (self.head_dim**0.5))
-        scores = scores.masked_fill(self.umask, float("-inf"))
+        mask = torch.ones(context_len, context_len, device=scores.device)
+        mask = torch.triu(mask, diagonal=1).bool()
+        scores = scores.masked_fill(mask, float("-inf"))
         scores = scores.softmax(dim=-1) @ v
         return scores
 
