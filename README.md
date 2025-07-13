@@ -30,10 +30,7 @@ cd <project_folder>
 Setup the environment using [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```Bash
-uv venv --python 3.13
-uv pip install torch --index-url https://download.pytorch.org/whl/cu128
-uv pip install numpy
-uv pip install tiktoken
+uv sync
 ```
 
 ## Training
