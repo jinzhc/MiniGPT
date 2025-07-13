@@ -1,10 +1,18 @@
-# Text2Generate
+# Build a Mini GPT From Zero
 
 ## Introduction
 
-Build a Mini GPT from zero, only based on PyTorch.
+This project explains step by step, combined with code snippets, the process from inputting text to predicting the next character and also the text sequence generation. It includes the training processes of each part.
 
-The primary objective is to acquire knowledge regarding Large Language Models (LLMs).
+The generation of a token in GPT can be roughly divided into the following stages:
+
+```mermaid
+flowchart LR
+A[[Text]] --> B[[Token]] --> C[[Embedding]] --> D[[Transformer]]
+D --> G[[Next Token]] --> B
+B --> H[[text output]] --> output((End))
+```
+
 
 ## Current Status
 
