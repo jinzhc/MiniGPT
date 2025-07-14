@@ -26,18 +26,19 @@ if __name__ == "__main__":
     # tokenizer_name = "cl100k_base"  # from tiktoken
     # tokenizer = Tokenizer(tokenizer_name)
     
-    with gzip.open("data/dataset.txt.gz", "rt", encoding="utf-8") as f:
+    config = Config(
+        save_path="save/mini_gpt001.pth",
+        tokenizer_name="SimpleBPE",
+        device="cuda" if torch.cuda.is_available() else "cpu",
+        max_steps=50000,
+    )
+    with gzip.open(config.corpus, "rt", encoding="utf-8") as f:
         text = f.read()
     tokenizer = SimpleBPE()
     tokenizer.train(text)
-    tokenizer.save("simple_bpe")
-    
-    config = Config(
-        save_path="save/mini_gpt001.pth",
-        tokenizer_name=tokenizer.name,
-        vocab_size=tokenizer.vocab_size,
-        device="cuda" if torch.cuda.is_available() else "cpu",
-    )
+    config.vocab_size = tokenizer.vocab_size
+    tokenizer.save(config.tokenizer_name)
+
     print(f"{config}")
 
     # Create dataset and put it in a DataLoader
