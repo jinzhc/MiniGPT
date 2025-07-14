@@ -8,7 +8,7 @@ import gzip
 
 def get_dataset(tokenizer, config):
     # Read text as a dataset from a file
-    with gzip.open("data/dataset.txt.gz", "rt", encoding="utf-8") as f:
+    with gzip.open(config.corpus, "rt", encoding="utf-8") as f:
         text = f.read()
         dataset = TokenDataset(
             tokens=tokenizer.encode(text),

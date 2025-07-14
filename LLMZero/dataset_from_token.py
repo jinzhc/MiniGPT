@@ -26,7 +26,7 @@ if __name__ == "__main__":
     config = Config()
     print(f"Config: {config}")
 
-    with gzip.open("data/dataset.txt.gz", "rt", encoding="utf-8") as f:
+    with gzip.open(config.corpus, "rt", encoding="utf-8") as f:
         text = f.read()
         print(f"Read text from dataset, length: {len(text)}")
 
