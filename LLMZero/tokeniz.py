@@ -1,5 +1,7 @@
 import tiktoken
 import gzip
+import numpy as np
+from pathlib import Path
 from collections import Counter
 
 
@@ -92,6 +94,8 @@ class SimpleBPE(object):
         self._vocab = vocab
 
     def encode(self, text):
+        if len(self._merges) == 0 or len(self._vocab) == 0:
+            raise ValueError("Tokenizer must load or be trained before encoding.")
         tokens = list(text.encode("utf-8"))
         while len(tokens) >= 2:
             # find the pair with the lowest merge index
@@ -105,18 +109,32 @@ class SimpleBPE(object):
 
     def decode(self, tokens):
         """Decode token IDs to text."""
+        if len(self._merges) == 0 or len(self._vocab) == 0:
+            raise ValueError("Tokenizer must load or be trained before encoding.")
         text_bytes = b"".join(self._vocab[idx] for idx in tokens)
         text = text_bytes.decode("utf-8", errors="replace")
         return text
 
-    def save(self, filepath: str):
-        """Save to file."""
-        pass
+    def save(self, prefix):
+        if len(self._merges) == 0 or len(self._vocab) == 0:
+            raise ValueError("Tokenizer must load or be trained before encoding.")
+        # save _merges and _vocab to npy files
+        merges_path = Path(f"save/{prefix}.model.npy")
+        vocab_path = Path(f"save/{prefix}.vocab.npy")
+        merges_path.parent.mkdir(parents=True, exist_ok=True)
+        vocab_path.parent.mkdir(parents=True, exist_ok=True)
+        np.save(merges_path, self._merges)
+        np.save(vocab_path, self._vocab)
+        return prefix
 
     @classmethod
-    def load(cls, filepath: str):
-        """Load from file."""
-        pass
+    def load(cls, prefix):
+        merges_path = Path(f"save/{prefix}.model.npy")
+        vocab_path = Path(f"save/{prefix}.vocab.npy")
+        tokenizer = cls()
+        tokenizer._merges = np.load(merges_path, allow_pickle=True).item()
+        tokenizer._vocab = np.load(vocab_path, allow_pickle=True).item()
+        return tokenizer
 
     @property
     def vocab_size(self) -> int:
@@ -133,6 +151,9 @@ if __name__ == "__main__":
 
     tokenizer = SimpleBPE()
     tokenizer.train(text)
+    tokenizer.save("simple_bpe")
+
+    tokenizer_loaded = SimpleBPE.load("simple_bpe")
 
     text = """In this work, we presented the Transformer, the first sequence transduction model based entirely on
 attention, replacing the recurrent layers most commonly used in encoder-decoder architectures with
@@ -146,8 +167,8 @@ plan to extend the Transformer to problems involving input and output modalities
 to investigate local, restricted attention mechanisms to efficiently handle large inputs and outputs
 such as images, audio and video. Making generation less sequential is another research goals of ours."""
     print(f"Original text: {text}")
-    encoded = tokenizer.encode(text)
+    encoded = tokenizer_loaded.encode(text)
     print(f"Encoded: {encoded}")
-    decoded = tokenizer.decode(encoded)
+    decoded = tokenizer_loaded.decode(encoded)
     print(f"Decoded: {decoded}")
     assert text == decoded, "Decoded text does not match original"
