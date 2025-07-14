@@ -1,6 +1,6 @@
 import torch
 from LLMZero import MiniGPT, Config
-from LLMZero import Tokenizer
+from LLMZero import Tokenizer, SimpleBPE
 
 
 def prepare_context(prompt_tokens, context_len):
@@ -17,7 +17,10 @@ def generate_text(
     model: MiniGPT, config: Config, prompt: str = "Hi", max_length: int = 100
 ):
     # Tokenize the prompt
-    tokenizer = Tokenizer(config.tokenizer_name)
+    if config.tokenizer_name == "SimpleBPE":
+        tokenizer = SimpleBPE.load("simple_bpe")
+    else:
+        tokenizer = Tokenizer(config.tokenizer_name)
     input_tokens = tokenizer.encode(prompt)
     generated_tokens = []
 
@@ -49,7 +52,7 @@ if __name__ == "__main__":
     model.eval()
 
     # Generate with the prompt
-    prompt = "Once upon a time "
+    prompt = "Once upon a time,"
     generated_text = generate_text(model, config, prompt=prompt, max_length=100)
     print(f"Generated text length: {len(generated_text)}")
     print(f"Generated text: {generated_text}")
