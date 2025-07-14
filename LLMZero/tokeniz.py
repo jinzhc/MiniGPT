@@ -141,6 +141,10 @@ class SimpleBPE(object):
     def vocab_size(self) -> int:
         """Get vocabulary size."""
         return len(self._vocab)
+    
+    @property
+    def eot_token(self):
+        return None
 
 
 if __name__ == "__main__":
