@@ -1,6 +1,6 @@
 import torch
 from LLMZero import MiniGPT, Config
-from LLMZero import Tokenizer, TokenDataset
+from LLMZero import Tokenizer, TokenDataset, SimpleBPE
 from torch.utils.data import DataLoader
 from datetime import datetime
 import gzip
@@ -8,7 +8,7 @@ import gzip
 
 def get_dataset(tokenizer, config):
     # Read text as a dataset from a file
-    with gzip.open("data/TinyStories-valid.txt.gz", "rt", encoding="utf-8") as f:
+    with gzip.open("data/dataset.txt.gz", "rt", encoding="utf-8") as f:
         text = f.read()
         dataset = TokenDataset(
             tokens=tokenizer.encode(text),
@@ -23,12 +23,19 @@ def get_dataset(tokenizer, config):
 
 if __name__ == "__main__":
     # Initialize tokenizer and configuration
-    tokenizer_name = "cl100k_base"  # from tiktoken
-    tokenizer = Tokenizer(tokenizer_name)
+    # tokenizer_name = "cl100k_base"  # from tiktoken
+    # tokenizer = Tokenizer(tokenizer_name)
+    
+    with gzip.open("data/dataset.txt.gz", "rt", encoding="utf-8") as f:
+        text = f.read()
+    tokenizer = SimpleBPE()
+    tokenizer.train(text)
+    tokenizer.save("simple_bpe")
+    
     config = Config(
         save_path="save/mini_gpt001.pth",
-        tokenizer_name=tokenizer_name,
-        vocab_size=tokenizer.vocab_size(),
+        tokenizer_name=tokenizer.name,
+        vocab_size=tokenizer.vocab_size,
         device="cuda" if torch.cuda.is_available() else "cpu",
     )
     print(f"{config}")

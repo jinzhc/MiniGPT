@@ -18,6 +18,7 @@ class Tokenizer(object):
         ], f"Unsupported tokenizer: {name}"
         self.tokenizer = tiktoken.get_encoding(name)
 
+    @property
     def vocab_size(self):
         return self.tokenizer.n_vocab
 
@@ -46,7 +47,7 @@ class SimpleBPE(object):
         self.name = "SimpleBPE"
         self._vocab = {}  # mapping from token to ID, {token_id -> bytes}
         self._merges = {}  # mapping from pair to new token, {(old_id,old_id) -> new_id}
-
+    
     def _merge_pair(self, tokens, pair, new_id):
         updated_tokens = []
         i = 0
@@ -76,7 +77,7 @@ class SimpleBPE(object):
             # Generate pairs of tokens
             pairs = [(i, j) for i, j in zip(tokens[:-1], tokens[1:])]
             pair, count = Counter(pairs).most_common(1)[0]
-            if count < 100:
+            if count <= 10:
                 break
 
             merges[pair] = new_token_id

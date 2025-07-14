@@ -38,6 +38,7 @@ class Config:
             "p50k_edit",
             "r50k_base",
             "r50k_edit",
+            "SimpleBPE",
         ], f"Unsupported tokenizer: {self.tokenizer_name}"
         # make sure the save path directory exists
         Path(self.save_path).parent.mkdir(parents=True, exist_ok=True)
