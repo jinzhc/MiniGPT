@@ -5,6 +5,7 @@ from pathlib import Path
 
 @dataclass
 class Config:
+    corpus: str = "data/dataset.txt.gz"  # Path to the training corpus
     device: str = "cpu"  # Device to use for training, can be "cpu" or "cuda"
     vocab_size: int = 1000  # Vocabulary size, adjusted based on tokenizer
     max_steps: int = 5000  # Maximum number of training steps
@@ -41,7 +42,9 @@ class Config:
             "SimpleBPE",
         ], f"Unsupported tokenizer: {self.tokenizer_name}"
         # make sure the save path directory exists
+        assert Path(self.corpus).exists(), f"Corpus {self.corpus} does not exist"
         Path(self.save_path).parent.mkdir(parents=True, exist_ok=True)
+
 
     @classmethod
     def from_json(cls, json_file):
