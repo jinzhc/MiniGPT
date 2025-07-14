@@ -7,7 +7,7 @@ from pathlib import Path
 class Config:
     corpus: str = "data/dataset.txt.gz"  # Path to the training corpus
     device: str = "cpu"  # Device to use for training, can be "cpu" or "cuda"
-    vocab_size: int = 1000  # Vocabulary size, adjusted based on tokenizer
+    vocab_size: int = 0  # Vocabulary size, adjusted based on tokenizer
     max_steps: int = 5000  # Maximum number of training steps
     learning_rate: float = 0.001  # Learning rate for the optimizer
     batch_size: int = 5  # Batch size for training
@@ -19,7 +19,7 @@ class Config:
     dropout: float = 0.1  # Dropout rate
     save_path: str = "save/model-ckpt.pth"  # Path to save the model checkpoint
     tokenizer_name: str = (
-        "cl100k_base"  # Tokenizer name, can be "cl100k_base" or others
+        "SimpleBPE"  # Tokenizer name, can be "cl100k_base" or "SimpleBPE"
     )
 
     def __post_init__(self):
@@ -29,16 +29,10 @@ class Config:
         ), f"d_model({self.d_model}) must be divisible by num_heads({self.num_heads})"
         assert self.context_len > 0, "context_len must be greater than 0"
         assert self.batch_size > 0, "batch_size must be greater than 0"
-        assert self.vocab_size > 0, "vocab_size must be greater than 0"
         assert self.head_dim > 0, "head_dim must be greater than 0"
         assert self.head_dim % 2 == 0, "head_dim must be even"
         assert self.tokenizer_name in [
             "cl100k_base",
-            "gpt2",
-            "p50k_base",
-            "p50k_edit",
-            "r50k_base",
-            "r50k_edit",
             "SimpleBPE",
         ], f"Unsupported tokenizer: {self.tokenizer_name}"
         # make sure the save path directory exists
