@@ -8,9 +8,9 @@ The generation of a token in GPT can be roughly divided into the following stage
 
 ```mermaid
 flowchart LR
-A[[Text]] --> B[[Token]] --> C[[Embedding]] --> D[[Transformer]]
+A[[Text]] -->|Tokenizer| B[[Token]] -->|Encoder| C[[Embedding]] --> D@{ shape: processes, label: "MiniGPT"}
 D --> G[[Next Token]] --> B
-B --> H[[text output]] --> output((End))
+B -->|Decoder| H[[Text]] --> output((End))
 ```
 
 ## Setup
