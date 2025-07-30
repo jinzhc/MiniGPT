@@ -18,8 +18,8 @@ B -->|Decoder| H[[Text]] --> output((End))
 Clone this project.
 
 ```Bash
-git clone <this_project>
-cd <project_folder>
+git clone https://github.com/jinzhc/MiniGPT.git
+cd MiniGPT
 ```
 
 Setup the environment using [uv](https://docs.astral.sh/uv/getting-started/installation/).
